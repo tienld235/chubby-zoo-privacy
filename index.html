@@ -30,7 +30,7 @@
 <body>
 <header>
   <h1>CHUBBY ZOO</h1>
-  <p>Privacy Policy · Chính sách quyền riêng tư</p>
+  <p id="tieu-de">Privacy Policy</p>
   <div class="ground"></div>
 </header>
 <main>
@@ -94,16 +94,27 @@
   // đọc được cả năm bản xếp nối nhau, chứ không ra trang chỉ có tiếng Anh.
   document.querySelectorAll('.ban').forEach(function (p, i) { p.hidden = i > 0; });
 
+  // Header đổi theo thứ tiếng đang xem. Không có JS thì header là tiếng Anh.
+  var TIEU_DE = {
+    en: 'Privacy Policy', vi: 'Chính sách quyền riêng tư', es: 'Política de privacidad',
+    pt: 'Política de Privacidade', id: 'Kebijakan Privasi'
+  };
+  function hien(ma) {
+    document.querySelectorAll('.tab').forEach(function (b) { b.classList.toggle('on', b.dataset.ma === ma); });
+    document.querySelectorAll('.ban').forEach(function (p) { p.hidden = p.dataset.ma !== ma; });
+    document.getElementById('tieu-de').textContent = TIEU_DE[ma];
+    document.title = TIEU_DE[ma] + ' — Chubby Zoo';
+    document.documentElement.lang = ma;
+    try { history.replaceState(null, '', '#' + ma); } catch (e) {}
+  }
   document.querySelectorAll('.tab').forEach(function (nut) {
-    nut.addEventListener('click', function () {
-      var ma = nut.dataset.ma;
-      document.querySelectorAll('.tab').forEach(function (b) { b.classList.toggle('on', b === nut); });
-      document.querySelectorAll('.ban').forEach(function (p) { p.hidden = p.dataset.ma !== ma; });
-    });
+    nut.addEventListener('click', function () { hien(nut.dataset.ma); });
   });
+  // Ưu tiên thứ tiếng app gửi sang trong link (#vi, #es...) — tức là tiếng người
+  // chơi đang chọn TRONG GAME, có thể khác tiếng của máy. Không có thì đoán theo máy.
+  var trongLink = (location.hash || '').slice(1);
   var may = (navigator.language || 'en').slice(0, 2);
-  var khop = document.querySelector('.tab[data-ma="' + may + '"]');
-  if (khop) khop.click();
+  hien(TIEU_DE[trongLink] ? trongLink : TIEU_DE[may] ? may : 'en');
 </script>
 </body>
 </html>
